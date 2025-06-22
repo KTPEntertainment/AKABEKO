@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKABEKO</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+    <div class="nav-logo">
+        <img src="img/logo.svg" alt="ロゴデザイン">
+    </div>
+    <ul class="nav-links">
+      <li><a href="https://www.instagram.com/okama_cho/">Contact ↗︎</a></li>
+      <li><a href="https://www.instagram.com/okama_cho/">Instagram ↗︎</a></li>
+    </ul>
+    </nav>
+    <div class="box"></div>
+    <div id="explanation">
+        <h1>Move the Akabeko</h1>
+         <p>
+            Akabeko is a traditional toy from Aizu in Fukushima, Japan.<br />
+            Long ago, people say a real red cow helped build a temple in that town.
+        </p>
+    </div>
+
+    <canvas id="myCanvas"></canvas>
+
+    <!-- cdnの読み込み -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        //init 関数を実行するイベントリスナーを設定     
+        window.addEventListener("DOMContentLoaded", init);
+
+        function init() {
+
+            //ウィンドウの幅と高さを取得し、width と height という変数に格納
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            // レンダラーの設定
+            const canvasElement = document.querySelector('#myCanvas');
+            const renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                canvas: canvasElement,
+            });
+
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(width, height);
+            renderer.shadowMap.enabled = true;
+            renderer.physicallyCorrectLights = true;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+            // シーンの作成
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+
+            // カメラの作成
+            const camera = new THREE.PerspectiveCamera(30, width / height, 1, 500);
+            camera.position.set(60, 20, 80);
+            camera.lookAt(0, 0, 0); 
+
+
+            // カメラコントローラーの作成
+            const controls = new THREE.OrbitControls(camera, canvasElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.2;
+            camera.position.set(30, 20, 80); // z方向に5離れた位置から原点を見る
+            camera.lookAt(0, 0, 0); 
+
+            // 環境光源の作成
+            const ambientLight = new THREE.AmbientLight(0xffffff, 4);
+            scene.add(ambientLight);
+            
+            let model; // モデルを格納する変数
+            const lights = []; // ライトを格納する配列
+
+            // ウィンドウサイズ変更時の対応
+            window.addEventListener('resize', () => {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            });
+
+            // 3Dモデルの読み込み
+            const gltfLoader = new THREE.GLTFLoader();
+            gltfLoader.load('models/akabeko2.glb', (gltf) => {
+                model = gltf.scene;
+                // モデルをシーンに追加
+                scene.add(model);
+                model.scale.set(4, 4, 4);
+                 model.position.set(0, 0, 0);
+                // モデルの位置の編集
+                model.position.set(-4, -9, 0);  // ← この行で位置調整！
+
+
+            }, undefined, (error) => {
+                console.error('GLBモデルの読み込み中にエラーが発生しました', error);
+            });
+
+            // アニメーションループ
+            function tick() {
+                controls.update();
+                renderer.render(scene, camera);
+                requestAnimationFrame(tick);
+            }
+
+            tick(); // 初回呼び出し
+        }
+    </script>
+</body>
+
+</html>
