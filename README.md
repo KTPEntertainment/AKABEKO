@@ -1,2 +1,0 @@
-# AKABEKO
-Blenderで作った赤べこをgLTF形式で書き出し、Three.jsを活用しweb上で3Dオブジェクトを表示してみました。
